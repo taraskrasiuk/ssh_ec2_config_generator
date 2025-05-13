@@ -5,6 +5,7 @@ to ec2 instance withing "ssh {ec2_inctance_name}" command.
 Required env variables:
     - AWS_ACCESS_KEY
     - AWS_SECRET_KEY
+    - AWS_REGION
     - SSH_CONFIG_PATH
     - SSH_KEY_PATH
 
