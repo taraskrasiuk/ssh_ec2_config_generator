@@ -18,7 +18,9 @@ SSH_CONFIG_PATH=~/.ssh/ec2_cfg.config \
 SSH_KEY_PATH=~/.ssh/id_ed25519 \
 ./sshcfggen
 ``
+
 The output will be the file in ``~/.ssh/ec2-cfg.config`` with a content:
+
 ``
 Host instance-527f9a0
 	Hostname 3.01.111.222
@@ -39,8 +41,9 @@ Host instance-527f9a0
 
 After generation a file use command:
 
+Put a correct path to generated config file
+
 ``
-// put a correct path to generated config file
 ssh -F ~/.ssh/ec2_cfg.config instance-527f9a0
 ``
 
