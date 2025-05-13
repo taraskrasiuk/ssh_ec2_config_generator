@@ -1,9 +1,10 @@
-### EC2 SSH config generator
+# EC2 SSH config generator
 
 Generate a ssh config file for your aws ec2 instances.
 
 The binary will generate a file ``ec2_cfg.config`` in defined ssh path.
 
+### How to run it
 Example:
 
 ``
@@ -19,9 +20,22 @@ Host instance-527f9a0
 	User ec2-user
 ```
 
-Required environment variables:
+### Required environment variables
+
 - AWS_ACCESS_KEY
 - AWS_SECRET_KEY
 - AWS_REGION
 - SSH_CONFIG_PATH
 - SSH_KEY_PATH ( path to ssh key pair )
+
+
+### How to use
+
+After generation a file use command:
+
+```
+// put a correct path to generated config file
+ssh -F ~/.ssh/ec2_cfg.config instance-527f9a0
+```
+
+As alternative, just put the content of the file to main ``.ssh/config`` file.
