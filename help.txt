@@ -1,0 +1,20 @@
+The execution will create a file "ec2_aws.config" in your
+ssh directory with all generated configurations in order to connect
+to ec2 instance withing "ssh {ec2_inctance_name}" command.
+
+Required env variables:
+    - AWS_ACCESS_KEY
+    - AWS_SECRET_KEY
+    - SSH_CONFIG_PATH
+    - SSH_KEY_PATH
+
+Example:
+	AWS_ACCESS_KEY=AAA123 AWS_SECRET_KEY=xxxx SSH_CONFIG_PATH=~/.ssh/ sshcfg_gen
+	Result:
+	The new configuration file will be created in provided directory with a ssh config
+	for each instance in format:
+
+	Host ec2_{name}
+	  IdentityFile {ssh_key_path}
+	  user {ec2_user}
+	  Hostname {ec2_ip}
