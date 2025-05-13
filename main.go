@@ -63,26 +63,22 @@ func (e ec2InstanceShort) ToString() string {
 	return fmt.Sprintf("Host %s\n\tHostname %s\n\tIdentityFile %s\n\tUser %s\n", e.Key, e.IP, e.KeyPairPath, e.User)
 }
 
-func writeToFile(ctx context.Context, path string, out <-chan ec2InstanceShort, done chan<- struct{}) {
+func writeToFile(ctx context.Context, path string, out <-chan ec2InstanceShort) error {
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
-		log.Fatal("could not open a file " + path)
+		return err
 	}
 	defer f.Close()
 
 	select {
 	case <-ctx.Done():
-		return
+		return ctx.Err()
 	case info := <-out:
 		{
 			_, err := f.Write([]byte(info.ToString()))
-			if err != nil {
-				log.Fatal("could not write to file " + path)
-			}
+			return err
 		}
 	}
-
-	done <- struct{}{}
 }
 
 func describeInstance(ctx context.Context, ec2Client *ec2.Client, instance types.Instance, in chan<- ec2InstanceShort) {
@@ -126,33 +122,41 @@ func describeInstances(ctx context.Context, cfg aws.Config) (<-chan ec2InstanceS
 }
 
 func main() {
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	errGroup, ctx := errgroup.WithContext(ctx)
 	loadFlags()
-
-	errGroup.Go(func() error {
-
-	})
 
 	cfg, err := aws_config.LoadDefaultConfig(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	doneCh := make(chan struct{})
+	// Create the instances channel
 	instancesInfoCh, err := describeInstances(ctx, cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Run the writing to a resulting file.
 	errGroup.Go(func() error {
-
+		_, _, ssh_path, _ := loadEnvConfig()
+		return writeToFile(ctx, ssh_path, instancesInfoCh)
 	})
+
+	if err := errGroup.Wait(); err != nil {
+		log.Fatal(err)
+	}
+
+	successMessage()
+}
+
+func successMessage() {
 	_, _, ssh_path, _ := loadEnvConfig()
-	go writeToFile(ctx, ssh_path, instancesInfoCh, doneCh)
-	<-doneCh
+	fmt.Printf(`
+All done.
+Check the created file ec2_aws.config in %s directory.
+\n`, ssh_path)
 }
 
 type userOs struct {
